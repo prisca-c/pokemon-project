@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Pokedex Vue Project</h1>
+    <h1 class="text-center my-4">Pokedex Vue Project</h1>
 
     <Pokedex />
   </div>
