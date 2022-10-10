@@ -59,7 +59,7 @@
         </div>
 
           <p v-if="getSpecies.length > 0" class="text-center m-auto">
-            {{ getSpecies[0].flavor_text_entries[0].flavor_text.replace(/\u000c/g, ' ')}}
+            {{ filteredFLAVORTEXT[0].flavor_text.replace(/\u000c/g, ' ') }}
           </p>
 
         <h2>Abilities</h2>
@@ -156,7 +156,6 @@ export default {
         .then( resp => { 
 
           this.pokemonInfo = resp.data
-          console.log(this.pokemonInfo)
 
           this.init()
         })
@@ -179,7 +178,6 @@ export default {
               .catch( error => console.log(error))
           }
       )}
-      console.log(this.getAbilities)
     },
 
     /** 
@@ -202,6 +200,7 @@ export default {
               this.getSpecies.push(resp.data)
           })
           .catch( error => console.log(error))
+          
         }
     }
   },
@@ -209,6 +208,11 @@ export default {
     filteredPokemonList() {
       return this.pokeApi.filter( 
         pokemon => pokemon.name.includes(this.searchInput)
+      )
+    },
+    filteredFLAVORTEXT() {
+      return this.getSpecies[0].flavor_text_entries.filter(
+        (text) => text.language.name.includes("en")// replace(/\u000c/g, ' ')
       )
     },
   },
