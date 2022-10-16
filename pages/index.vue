@@ -22,8 +22,4 @@
 @import 'static/assets/styles/reset.css';
 @import 'static/assets/styles/styles.css';
 
-.capitalize {
-  text-transform: capitalize;
-}
-
 </style>

@@ -12,12 +12,12 @@
     />
 
     <!-- Pick a pokemon -->
-    <b-row v-if="filteredPokemonList.length < 30" class="mx-1 my-3">
+    <b-row v-if="filteredPokemonList.length < 30" class="d-flex justify-content-center mx-1 my-3">
       <div v-for="pokemon in filteredPokemonList" :key="pokemon.name" class="p-1">
         <b-button
           type="button"
           @click.prevent="pickPokemon(pokemon.name)"
-          class="capitalize"
+          class="text-capitalize btn-pokemon"
         >
           {{ pokemon.name }}
         </b-button>
@@ -30,87 +30,101 @@
         <h2 class="pokemonName mt-4 text-center">
           #{{ pokemonInfo.id }} 
           <br>
-          <span class="capitalize">{{ choosenPokemon }}</span>
+          <span class="text-capitalize">{{ choosenPokemon }}</span>
         </h2>
+
         <!-- Display Pokemon's Image -->
         <div
-          v-if="pokemonInfo.sprites"
-          class="
-            pokemonImage mb-4 mt-3 d-inline-block p-2 border border-secondary rounded-lg"
+          v-if="choosenPokemon"
+          class="mx-auto mb-4 mt-3"
         >
-          <img
-            v-if="pokemonInfo.sprites.other.home.front_default !== null"
-            :src="pokemonInfo.sprites.other.home.front_default"
-            :alt="`${choosenPokemon}'s illustration`"
-            height="200px"
-            width="200px"
+          <!-- Component which render the choosen pokemon's image/sprite -->
+          <sprite :pokemon="choosenPokemon" :key="choosenPokemon" />
+        </div>
+
+        <!-- Display Evolution's infos -->
+        <div
+          class="d-flex flex-column justify-content-center flex-wrap"
+          v-if="filteredEVOLUTION"
+        >
+          <h2 class="text-capitalize text-center"
+              v-if="filteredEVOLUTION.length > 1">
+            {{ choosenPokemon }}'s evolutions
+          </h2>
+
+          <div
+            class="d-flex justify-content-center flex-wrap"
+            v-if="filteredEVOLUTION.length > 1"
           >
-          <img
-            v-else-if="pokemonInfo.sprites.other.home.front_default === null && pokemonInfo.sprites.front_default !== null"
-            :src="pokemonInfo.sprites.front_default"
-            :alt="`${choosenPokemon}'s illustration`"
-            height="200px"
-            width="200px"
-          >
-          <div v-else>
-            <p>No Illustration Available</p>
+            <!-- Get evo's image/sprite -->
+            <sprite
+              v-for="evolution in filteredEVOLUTION"
+              :pokemon="evolution.species_name"
+              :key="evolution.species_name"
+              getHeight="100"
+              getWidth="100"
+              :label="evolution.species_name"
+              class="mx-3"
+            />
           </div>
 
         </div>
 
-          <p v-if="getSpecies.length > 0" class="text-center m-auto">
-            {{ filteredFLAVORTEXT[0].flavor_text.replace(/\u000c/g, ' ') }}
-          </p>
+        <!-- Display Flavors Text -->
+        <p v-if="getSpecies.flavor_text_entries" class="text-center m-auto">
+          {{ filteredFLAVORTEXTlang[0].flavor_text.replace(/\u000c/g, ' ') }}
+        </p>
 
+        <!-- Display abilities -->
         <h2>Abilities</h2>
         <div v-if="getAbilities.length > 0">
 
-          <template>
-            <b-card class="border-radius-sm shadow-sm">
-              <b-tabs>
-                <b-tab
-                  card-header
-                  tabs
-                  v-for="ability in getAbilities"
-                  :key="ability.name"
-                  :title="`#${ability.id} - ${ability.name.toUpperCase()}`"
-                >
-                  
-                  <div class="effect">
-                    <div v-if="ability.effect_entries.length > 0">
-                      <h3>Effect</h3>
-                      <p>
-                        {{ filteredLangEFFECT(ability.effect_entries).effect }}
-                      </p>
-                    </div>
-                    <div v-else>
-                      <h3>Effect</h3>
-                      <p>No informations</p>
-                    </div>
-                  </div>
+          <b-card class="border-radius-sm shadow-sm">
+            <b-tabs>
+              <b-tab
+                card-header
+                tabs
+                v-for="ability in getAbilities"
+                :key="ability.name"
+                :title="`#${ability.id} - ${ability.name.toUpperCase()}`"
+              >
 
-                  <div v-if="ability.pokemon.length > 0">
-                    <b-dd
-                      id="dropdown-buttons dropdown-offset"
-                      text="Pokemon with this abillity"
-                      class="mt-2"
-                      block
-                      no-flip
-                    >
-                      <b-dd-item-button
-                        v-for="pokemon in ability.pokemon"
-                        :key="pokemon.pokemon.name"
-                        @click.prevent="pickPokemon(pokemon.pokemon.name)"
-                        class="d-inline-block text-center w-50 my-2"
-                      >
-                        {{ pokemon.pokemon.name }}
-                      </b-dd-item-button>
-                    </b-dd>
+                <!-- Display effect -->
+                <div class="effect">
+                  <div v-if="ability.effect_entries.length > 0">
+                    <h3>Effect</h3>
+                    <p>
+                      {{ filteredLangEFFECT(ability.effect_entries).effect }}
+                    </p>
                   </div>
-                </b-tab>
-              </b-tabs>
-            </b-card>
-          </template>
+                  <div v-else>
+                    <h3>Effect</h3>
+                    <p>No informations</p>
+                  </div>
+                </div>
+
+                <!-- Display pokemon's with the same abillity -->
+                <div v-if="ability.pokemon.length > 0">
+                  <b-dd
+                    id="dropdown-buttons dropdown-offset"
+                    text="Pokemon with this abillity"
+                    class="mt-2"
+                    block
+                    no-flip
+                  >
+                    <b-dd-item-button
+                      v-for="pokemon in ability.pokemon"
+                      :key="pokemon.pokemon.name"
+                      @click.prevent="pickPokemon(pokemon.pokemon.name)"
+                      class="d-inline-block text-center w-50 my-2"
+                    >
+                      {{ pokemon.pokemon.name }}
+                    </b-dd-item-button>
+                  </b-dd>
+                </div>
+              </b-tab>
+            </b-tabs>
+          </b-card>
           
         </div>
       </div>
@@ -131,7 +145,10 @@ export default {
       pokemonInfo: {},
       choosenPokemon: '',
       getAbilities: [],
-      getSpecies: [],
+      getSpecies: {},
+      getEVOLUTIONCHAIN: {},
+      getEvolutionLoopData: {},
+      componentKey: '',
     }
   },
   async fetch() {
@@ -144,24 +161,23 @@ export default {
   },
   methods: {
     init() {
-      this.getPokemonSPECIES() 
       this.getPokemonABILITIES()
+      this.getPokemonSPECIES()
+      this.forceRerenderer()
     },
     pickPokemon(value) {
-      console.log(value);
       this.choosenPokemon = value
-      {
+      
       axios
         .get(`https://pokeapi.co/api/v2/pokemon/${this.choosenPokemon}`)
         .then( resp => { 
-
+          
           this.pokemonInfo = resp.data
 
           this.init()
+          
         })
         .catch( error => console.log(error))
-      }
-
       
     },
     getPokemonABILITIES() {
@@ -179,7 +195,34 @@ export default {
           }
       )}
     },
+    getPokemonSPECIES() {
+      if (this.pokemonInfo.species){
 
+        axios
+          .get(this.pokemonInfo.species.url)
+          .then( 
+            resp => {
+
+              this.getSpecies = resp.data
+
+              this.getPokemonEVOLUTIONCHAIN()
+          })
+          .catch( error => console.log(error))
+          
+      }
+    },
+    getPokemonEVOLUTIONCHAIN() {
+      if (this.getSpecies.evolution_chain){
+        axios
+          .get(this.getSpecies.evolution_chain.url)
+          .then(
+            resp => {
+              this.getEVOLUTIONCHAIN = resp.data
+            }
+          )
+          .catch( error => console.log(error))
+      }
+    },
     /** 
      * Needed to get only English effect entries
      * ( because sometimes language's arrays are reversed ,
@@ -190,19 +233,22 @@ export default {
         ability => ability.language.name === "en"
       )
     },
-    getPokemonSPECIES() {
-      if (this.pokemonInfo.species){
-        this.getSpecies = []
+    /* getPokemonSPRITE(pokemon) {
+      let sprites = {}
+      {
         axios
-          .get(`${this.pokemonInfo.species.url}`)
-          .then( 
+          .get(`https://pokeapi.co/api/v2/pokemon/${pokemon}`)
+          .then(
             resp => {
-              this.getSpecies.push(resp.data)
-          })
-          .catch( error => console.log(error))
-          
-        }
-    }
+              sprites = resp.data.sprites
+              console.log(sprites);
+            }
+          )
+          .catch(error => console.log(error))
+        
+        return sprites
+      }
+    }, */
   },
   computed: {
     filteredPokemonList() {
@@ -211,27 +257,114 @@ export default {
       )
     },
     filteredFLAVORTEXT() {
-      return this.getSpecies[0].flavor_text_entries.filter(
-        (text) => text.language.name.includes("en")// replace(/\u000c/g, ' ')
-      )
+      if(this.getSpecies.flavor_text_entries) {
+        return this.getSpecies.flavor_text_entries.slice([0], [10]).map((item) => {
+          return ({flavor_text: item.flavor_text, language: item.language.name});
+        })
+      }
+    },
+    filteredFLAVORTEXTlang() {
+      if(this.getSpecies.flavor_text_entries) {
+        return this.filteredFLAVORTEXT.filter(
+          text => text.language === 'en'
+        ).slice([0], [1])
+      }
+    },
+    filteredEVOLUTION() {
+      if (this.getEVOLUTIONCHAIN.chain) {
+        let evoChain = [];
+        let evoData = this.getEVOLUTIONCHAIN.chain;
+
+        do {
+            let numberOfEvolutions = evoData['evolves_to'].length;
+            let evoDetails = evoData['evolution_details'][0];
+            
+            if(numberOfEvolutions <= 1){
+              evoChain.push({
+                "species_name":
+                  evoData .species.name,
+                "min_level":
+                  !evoDetails
+                    ? 1
+                    : evoDetails .min_level,
+                "trigger_name":
+                  !evoDetails
+                    ? null
+                    : evoDetails .trigger.name,
+                "item":
+                  !evoDetails
+                    ? null
+                    : evoDetails .item,
+                "min_affection":
+                  !evoDetails
+                    ? null
+                    : evoDetails .min_affection,
+                "time_of_day":
+                  !evoDetails
+                    ? null
+                    : evoData .time_of_day,
+              })
+            };
+
+            // Needed for all Eevee's evolutions...
+            if(numberOfEvolutions > 1) {
+              for (let i = 1;i < numberOfEvolutions; i++) { 
+                evoChain.push({
+                  "species_name":
+                    evoData.evolves_to[i].species.name,
+                  "min_level": 
+                    !evoData.evolves_to[i]
+                      ? 1
+                      : evoData.evolves_to[i].evolution_details[0].min_level,
+                  "trigger_name": 
+                    !evoData.evolves_to[i]
+                      ? null 
+                      : (
+                          // Ternary needed to deal with multiple case of evolutions,
+                          // i choose to deal with evolution stone's one
+                          evoData.evolves_to[i].evolution_details.length === 5
+                            ? evoData.evolves_to[i].evolution_details[4].trigger.name
+                            : evoData.evolves_to[i].evolution_details[0].trigger.name
+                        ),
+                  "item":
+                    !evoData.evolves_to[i]
+                      ? null
+                      : (
+                          // Ternary needed to deal with multiple case of evolutions,
+                          // i choose to deal with evolution stone's one
+                          evoData.evolves_to[i].evolution_details.length === 5
+                            ? evoData.evolves_to[i].evolution_details[4].item
+                            : evoData.evolves_to[i].evolution_details[0].item
+                        ),
+                  "min_affection":
+                    !evoData.evolves_to[i]
+                      ? null
+                      : evoData.evolves_to[i].evolution_details[0].min_affection,
+                  "time_of_day":
+                    !evoData.evolves_to[i]
+                      ? null
+                      : evoData.evolves_to[i].evolution_details[0].time_of_day,
+              });}}        
+
+            evoData = evoData.evolves_to[0];
+          
+        } while (evoData != undefined && evoData.hasOwnProperty('evolves_to'));
+
+        return evoChain; 
+      }
     },
   },
 }
 </script>
 
-<style>
-
-.capitalize {
-  text-transform: capitalize;
-}
+<style scoped>
 
 .pokemonName {
   line-height: 30px;
 }
 
-.pokemonImage {
-  margin-left: auto;
-  margin-right: auto;
+.btn-pokemon{
+  width: 218px;
 }
 
 </style>
