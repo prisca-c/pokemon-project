@@ -2,7 +2,7 @@
   <div
   v-if="sprites.length > 0"
     class="
-      pokemonImage mb-4 mt-3 d-inline-block p-2 border border-secondary rounded-lg"
+      pokemonImage mb-2 mt-3 d-inline-block p-2 border border-secondary rounded-lg"
   >
     <img
       v-if="sprites[0].other.home.front_default !== null"
@@ -24,7 +24,7 @@
       <p class="m-auto">No Illustration Available</p>
     </div>
 
-    <p class="text-capitalize text-center mt-2">{{ label }}</p>
+    <p class="text-capitalize text-center mt-2 font-weight-bold">{{ label }}</p>
   </div>
 </template>
 
@@ -40,13 +40,13 @@
         required: true,
       },
       getHeight: {
-        type: Number,
-        default: 200,
+        type: String,
+        default: '200',
         required: false,
       },
       getWidth: {
-        type: Number,
-        default: 200,
+        type: String,
+        default: '200',
         required: false,
       },
       label: {

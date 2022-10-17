@@ -2,32 +2,36 @@
   <div class="m-2">
 
     <!-- Search bar -->
-    <b-form-input
-      type="text"
-      name="searchInput"
-      id="searchInput"
-      v-model="searchInput"
-      placeholder="Enter a name"
-      autofocus
-    />
-
-    <!-- Pick a pokemon -->
-    <b-row v-if="filteredPokemonList.length < 30" class="d-flex justify-content-center mx-1 my-3">
-      <div v-for="pokemon in filteredPokemonList" :key="pokemon.name" class="p-1">
-        <b-button
-          type="button"
-          @click.prevent="pickPokemon(pokemon.name)"
-          class="text-capitalize btn-pokemon"
-        >
-          {{ pokemon.name }}
-        </b-button>
-      </div>
-    </b-row>
+    <div class="mw-900 m-auto">
+      <b-form-input
+        type="text"
+        name="searchInput"
+        id="searchInput"
+        v-model="searchInput"
+        placeholder="Enter a name"
+        autofocus
+      />
+      <!-- Pick a pokemon -->
+      <b-row
+        v-if="filteredPokemonList.length < 30"
+        class="mw-900 d-flex justify-content-around my-3 mx-auto"
+      >
+        <div v-for="pokemon in filteredPokemonList" :key="pokemon.name">
+          <b-button
+            type="button"
+            @click.prevent="pickPokemon(pokemon.name)"
+            class="text-capitalize btn-pokemon"
+          >
+            {{ pokemon.name }}
+          </b-button>
+        </div>
+      </b-row>
+    </div>
 
     <!-- Display Pokémon's infos -->
     <template v-if="choosenPokemon">
       <div class="d-flex flex-column">
-        <h2 class="pokemonName mt-4 text-center">
+        <h2 class="pokemonName mt-4 text-center font-weight-bold">
           #{{ pokemonInfo.id }} 
           <br>
           <span class="text-capitalize">{{ choosenPokemon }}</span>
@@ -36,7 +40,7 @@
         <!-- Display Pokemon's Image -->
         <div
           v-if="choosenPokemon"
-          class="mx-auto mb-4 mt-3"
+          class="mx-auto mb-4 mt-1"
         >
           <!-- Component which render the choosen pokemon's image/sprite -->
           <sprite :pokemon="choosenPokemon" :key="choosenPokemon" />
@@ -47,37 +51,140 @@
           class="d-flex flex-column justify-content-center flex-wrap"
           v-if="filteredEVOLUTION"
         >
-          <h2 class="text-capitalize text-center"
+          <h2 class="text-capitalize text-center font-weight-bold"
               v-if="filteredEVOLUTION.length > 1">
             {{ choosenPokemon }}'s evolutions
           </h2>
 
           <div
-            class="d-flex justify-content-center flex-wrap"
+            class="d-flex justify-content-center flex-wrap mb-4"
             v-if="filteredEVOLUTION.length > 1"
           >
-            <!-- Get evo's image/sprite -->
-            <sprite
+            <div
+              class="evolution-box"
               v-for="evolution in filteredEVOLUTION"
-              :pokemon="evolution.species_name"
-              :key="evolution.species_name"
-              getHeight="100"
-              getWidth="100"
-              :label="evolution.species_name"
-              class="mx-3"
-            />
+              :key="`${evolution.species_name}'-evo'`"
+            >
+              <!-- Get evo's image/sprite -->
+              <sprite
+                :pokemon="evolution.species_name"
+                getHeight="100"
+                getWidth="100"
+                :label="evolution.species_name"
+                class="mx-3"
+              />
+              <div
+                class="evolution-infos text-capitalize"
+              >
+                <!-- Display basic evolution -->
+                <p
+                  v-if="
+                    evolution.min_level !== null
+                  "
+                  class="text-center lh-20"
+                >
+                  <span class="font-weight-bold">
+                    Level <br>
+                  </span>
+
+                  {{ evolution.min_level }}
+                </p>
+                
+                <!-- Display Day/Night evolution -->
+                <p
+                  class="text-center  lh-20"
+                  v-else-if="
+                    evolution.time_of_day === 'day' ||
+                    evolution.time_of_day === 'night'
+                  "
+                >
+
+                  <span
+                    class="font-weight-bold"
+                  >
+                    Evoltve at<br>
+                  </span>
+
+                  {{ evolution.time_of_day }}
+
+                </p>
+
+                <!-- Display Min Happiness evolution -->
+                <p
+                  class="text-center lh-20"
+                  v-else-if="
+                    evolution.min_happiness !== null &&
+                    evolution.min_level === null
+                  "
+                >
+                  <span
+                    class="font-weight-bold"
+                  >
+                    Happinness <br>
+                  </span>
+
+                  <span style="color: #ff8cb8">{{ evolution.min_happiness }}</span>
+                </p>
+
+                <!-- Display Trade evolution -->
+                <p
+                  v-else-if="evolution.trigger_name === 'trade'"
+                  class="text-center lh-20"
+                >
+                  <span class="font-weight-bold">Trade</span>
+                </p>
+
+                <!-- Display Stone Evolution -->
+                <p
+                  v-else-if="evolution.trigger_name === 'use-item'"
+                  class="text-center lh-20"
+                >
+                  <span class="font-weight-bold">
+                    Stone Evo'
+                  </span>
+
+                  <span :style="{ color: getStoneColor(evolution.item.name),}">
+                    <br>{{ evolution.item.name }}
+                  </span>
+                </p>
+
+                <!-- Display Affection evolution -->
+                <p
+                  class="text-center lh-20"
+                  v-else-if="evolution.min_affection"
+                >
+                  <span
+                    class="font-weight-bold"
+                  >
+                    Affection <br>
+                  </span>
+
+                  <span style="color: #ff8cb8">{{ evolution.min_affection }}</span>
+                </p>
+
+                <!-- Display if no informations -->
+                <p v-else class="text-center lh-20 font-weight-bold">
+                  No
+                  <br>Informations
+                </p>
+
+              </div>
+            </div>
           </div>
 
         </div>
 
         <!-- Display Flavors Text -->
-        <p v-if="getSpecies.flavor_text_entries" class="text-center m-auto">
+        <p v-if="getSpecies.flavor_text_entries" class="mw-900 text-center m-auto">
           {{ filteredFLAVORTEXTlang[0].flavor_text.replace(/\u000c/g, ' ') }}
         </p>
 
         <!-- Display abilities -->
-        <h2>Abilities</h2>
-        <div v-if="getAbilities.length > 0">
+        <div
+          v-if="getAbilities.length > 0"
+          class="mw-900 mx-auto mt-4"
+        >
+          <h2>Abilities</h2>
 
           <b-card class="border-radius-sm shadow-sm">
             <b-tabs>
@@ -148,7 +255,7 @@ export default {
       getSpecies: {},
       getEVOLUTIONCHAIN: {},
       getEvolutionLoopData: {},
-      componentKey: '',
+      stoneColor: "",
     }
   },
   async fetch() {
@@ -163,7 +270,7 @@ export default {
     init() {
       this.getPokemonABILITIES()
       this.getPokemonSPECIES()
-      this.forceRerenderer()
+      //this.forceRerenderer()
     },
     pickPokemon(value) {
       this.choosenPokemon = value
@@ -233,22 +340,30 @@ export default {
         ability => ability.language.name === "en"
       )
     },
-    /* getPokemonSPRITE(pokemon) {
-      let sprites = {}
-      {
-        axios
-          .get(`https://pokeapi.co/api/v2/pokemon/${pokemon}`)
-          .then(
-            resp => {
-              sprites = resp.data.sprites
-              console.log(sprites);
-            }
-          )
-          .catch(error => console.log(error))
-        
-        return sprites
+    getStoneColor(stone) {
+      if (this.getSpecies.evolution_chain){
+        if (stone === "thunder-stone") return "#ebd700"
+        if (stone === "fire-stone") return "#F09030"
+        if (stone === "leaf-stone") return "#88D088"
+        if (stone === "ice-stone") return "#7CC9D6"
+        if (stone === "moon-stone") return "#556D5D"
+        if (stone === "water-stone") return "#8080E4"
+        if (stone === "sun-stone") return "#CC6734"
+        if (stone === "shiny-stone") return "#EDEF8F"
+        if (stone === "dusk-stone") return "#705078"
+        if (stone === "dawn-stone") return "#18B0A0"
       }
-    }, */
+    },
+    checkIfPokemonExist(value) {
+      let checkPokemon = []
+      
+      axios
+        .get(`https://pokeapi.co/api/v2/pokemon/${value}`)
+        .then( resp => checkPokemon.push(resp.data))
+        .catch(error => error)
+      
+      return checkPokemon
+    }
   },
   computed: {
     filteredPokemonList() {
@@ -295,6 +410,10 @@ export default {
                   !evoDetails
                     ? null
                     : evoDetails .item,
+                "min_happiness":
+                  !evoDetails
+                    ? null
+                    : evoDetails .min_happiness,
                 "min_affection":
                   !evoDetails
                     ? null
@@ -336,6 +455,10 @@ export default {
                             ? evoData.evolves_to[i].evolution_details[4].item
                             : evoData.evolves_to[i].evolution_details[0].item
                         ),
+                  "min_happiness":
+                    !evoData.evolves_to[i]
+                      ? null
+                      : evoData.evolves_to[i].evolution_details[0].min_happiness,
                   "min_affection":
                     !evoData.evolves_to[i]
                       ? null
@@ -365,6 +488,15 @@ export default {
 
 .btn-pokemon{
   width: 218px;
+  margin-bottom: 8px;
+}
+
+.mw-900{
+  max-width: 900px;
+}
+
+.lh-20 {
+  line-height: 20px;
 }
 
 </style>
